@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html>
+	<title>5.Closing in on closures</title>
+	<body>
+		<div id='box'>Listing 5.6 test timer</div>
+		<button id = "test 5.7"> Click Me!(Listing 5.7)</button>
+		<button id = "test 5.8"> Click Me!(Listing 5.8)</button>
+	</body>
+	<script type="text/javascript" src="assert.js"></script>
+
+	<script type="text/javascript">
+
+/*
+
+第五章：闭包 (5.Closing in on closures)－page：91
+
+这章写得极为精彩，让我明白了好多以前根本不知道的概念。
+闭包是一个神奇的东西，新果说过，闭包就是可以当作鞭子来用，可以打出鞭子头一样的力道。
+所谓的函数化这个概念，想要理解函数化编程，闭包是一个很重要的部分。
+
+本章重点：
+1.闭包的定义，闭包是什么，闭包如何工作
+2.利用闭包来实现一些简单的开发
+3.利用闭包实现性能上的增强
+4.利用闭包实现私有域
+
+
+5.1 闭包如何工作（How closures work)
+
+问：闭包是什么？
+答：简单来说，closure是一块域，这块域是由创建一个function而来，这个function可以访问和操作它的外部的变量
+(Simply put, a closure is the scope created when a function is declared that allows the function to access and manipulate variables that are external to that function.)
+这个概念最好还是用代码来解释，所以让我们看看5.1这个例子：
+
+Listing 5.1: A simple closuer
+*/
+test("Listing 5.1: A simple closuer", function()
+{
+	var outerValue = 'ninja';
+	function outerFunction(){
+		assert(outerValue == 'ninja', "I can see the ninja")
+	}
+	outerFunction();
+})
+/*
+你可能写过n多次这样的代码，可你竟然没有意识到你在创建closure！
+你不相信？估计是因为你没有感觉到有任何的惊喜。
+因为out value和outer function的作用域是全局域(global scope)，而全局域是永远不会消失(自从这个页面被加载就存在了)，
+另外就算是这个function可以访问outer value，这个特点也没有实用的价值。
+所以就算closure已经存在了，它的用处也不明显。
+让我们给他加上一点料，来看看5.2这个列子吧：
+
+Listing 5.2: A not-so-simple closue
+*/
+test("Listing 5.2: A not-so-simple closue",function()
+{
+
+	var outerValue = 'ninja';
+	var later;
+
+	function outerFunction(){
+		var innerValue = 'samurai';
+
+		function innerFunction(){
+			assert(outerValue, "I can see the ninja");
+			assert(innerValue, "I can see the samurai");
+		}
+
+		later = innerFunction;
+	}
+
+	outerFunction();
+	later();
+})
+/*
+首先，我们定义了later这个变量，我们会在后面用到它。
+然后，我们在outer function中定义了inside这个变量，这样inside就被限制在outerFunction域内了。
+然后，我们在outerFunction中定义了一个innerFunction，innerFunction可以访问我们已经定义过的所有外部变量。
+是的！我们可以这样做！记住上一章我们讨论过的吗？function是自然类型的对象(first－class objects)，它和变量一样在任何地方都可以被创建。
+我们当然也可以将inner function赋给later变量，以便稍后调用。
+
+一切就绪，我们开始运行。
+我们调用outer function，创建了inner function，然后inner function赋给了later变量（全局变量），然后通过调用全局变量later，等价于调用了inner function。
+发生了什么事情？
+1.inner function可以访问outerValue，因为outerValue属于全局域，
+2.由于js的特性，在正常情况下，全局域中我们是无法访问到innerValue的，但是通过将innerFunction赋给later变量，later就称为了域之间的桥梁，我们自然在全局域可以访问到innerValue。
+这是什么原理呢？答案就是，闭包（closures）！
+
+当我们创建innerFunction的时候，不仅仅是定义了一个function，我们还创建了一个域。
+在外部掉用innerFUnction的时候，虽然调用发生在全局域，但是innerFunction还是会访问当初被定义的时刻的那个原始域。这个域就是它的闭包（closure）
+
+让我们来看看下一个例子：5.3
+
+Listing 5.3: What else closures can see
+*/
+test("Listing 5.3: What else closures can see", function()
+{
+
+	var outerValue = 'ninja';
+	var later;
+
+	function outerFunction()
+	{
+		var innerValue = 'samuai';
+
+		function innerFunction(paramValue)
+		{
+			assert(outerValue, "Inner can see the ninja");
+			assert(innerValue, "Inner can see the samurai");
+			assert(paramValue, "Inner can see the wakizashi");
+			assert(tooLate, "Inner can see the ronin");
+		}
+		
+		later = innerFunction;		
+	}
+
+	assert(!tooLate, "Outer can't see the ronin");
+
+	var tooLate = 'ronin';
+
+	outerFunction();
+	later('wakizashi');
+
+})
+
+/*
+这个例子中表达了3个关于closure的概念：
+1.function的参数也被包含在闭包之中
+2.所有的外部变量都属于闭包可访问的范围（外部域），包括那些在闭包后面创建出来的变量。
+3.在同一个域中，不可以访问后面才创建的变量
+第2和第3点解释了为什么只有inner closure可以看见tooLate，而outer closure则不可以看见tooLate。
+
+虽然闭包并不引人注意（你并不能通过工具检测到“闭包”这个对象），但是我门还是要意识到闭包其实是占用了内存的。
+请记住，闭包威力无穷，但是也有危险。
+如果你有强烈的意愿想用好闭包，闭包毫无疑问是威力无穷的。
+但是它理所当然需要系统开销。
+所有闭包中的信息数据都已经缓存在内存之中，
+如何释放掉这块内存呢？
+这里有两种办法：
+1.通过JavaScript引擎的GC垃圾回收机制
+2.刷新或者关闭当前页面。
+
+
+
+
+
+5.2 让闭包用起来(Putting closures to work)
+
+现在，我们已经明白了闭包是什么，并且知道它如何使用（虽然是很high level的），
+现在我们要真正让闭包用起来。
+
+
+5.2.1 私有变量(Private variables)
+在JavaScript中如何实现让一个域拥有私有的变量呢？
+答案就是使用闭包。
+我们看到大部分JavaScript菜鸟都是在用面向对象(Object-oriented)的方式来编写JavaScript,
+这样做带来的缺点就是无法实现私有变量。
+
+在例子5.4中我们会看到闭包是如何搞定私有变量的
+
+Listing 5.4：Using closures to approxiate private variables
+*/
+test("Listing 5.4:Using closures to approxiate private variables",function(){
+
+function Ninja()
+{
+	var slices = 0;
+
+	this.getSlices = function()
+	{
+		return slices;
+	}
+
+	this.slice = function()
+	{
+		slices++;
+	}
+}
+
+var ninja = new Ninja();
+
+ninja.slice();
+
+assert(ninja.getSlices() == 1,
+	"We're able to access the internal slice data.");
+assert(ninja.slices == undefined,
+	"And the private data is inaccessible to us.");
+
+})
+/*
+这个例子表明了，Ninja这个函数中的数据状态，是由Ninja这个函数来维护，
+外部是无法干预到Ninja这个函数内部的变量的。
+函数内部的变量，只允许Ninja的内部方法来访问。
+
+现在，让我们回过神来，我们要继续探索闭包的另一个牛逼的用法。
+
+
+
+5.2.2 Callbacks and timers
+
+另一个闭包的牛逼用法，就是实现了回调(callbacks)和定时器(timer)
+让我们来看一个利用jQuery来实现Ajax请求的例子5.5
+
+Listing 5.5: Using closures from a callback for an Ajax request
+*/
+test("Listing 5.5: Using closures from a callback for an Ajax request",function(){
+
+var jQuery = function(){
+	return {
+		click:function(){}
+	}
+};
+
+jQuery('#testButton').click(function(){
+	var elem$ = jQuery("div");
+	elem$.heml("Loading...");
+
+	jQuery.ajax({
+		url: test.html,
+		success: function(html){
+			assert(elem$,
+				"We can see elem$, via the closure for this callback.");
+			// elem$.html(html);
+		}
+	})
+})
+
+})
+/*
+jQuery大家制定用的很熟悉了，这里就不过多解释了，如果你看不懂这个例子，先去http://www.w3cschool.cn/index-30.html看看jQuery的概念吧，我只能帮你到这里了Brother。
+
+下面让我们看看Timer的例子：
+
+Listing 5.6: Using a closure in a timer interval callback
+*/
+// test("Listing 5.6: Using a closure in a timer interval callback",function()
+// {
+// var elem = document.getElementById("box");
+// var tick = 0;
+
+// var timer = setInterval(function(){
+// 	if (tick < 100){
+// 		elem.style.left = elem.style.top = tick + "px";
+// 		tick++;
+// 	}else{
+// 		clearInterval(timer);
+// 		assert(tick == 100, 
+// 			"Tick accessed via a closure.");
+// 		assert(elem,
+// 			"Element also acessed via a closure.");
+// 		assert(timer,
+// 			"Timer reference also obtained via a closure.")
+// 	}
+// }, 10);
+
+// })
+/*
+下面，让我们来看看如何让function的上下文(contexts)为我们工作。
+
+
+5.3 Binding function contexts
+
+我们在上一章已经讨论果函数上下文这个概念，你还记得如何更改一个函数的上下文吗？
+对了！用.call()和.apply()。
+ps:你还记得call和apply的区别吗?不记得的话就回去看看吧。
+
+在下面这个例子中，我们想让一个对象的方法绑定到一个dom元素上
+
+Listing 5.7:Bingding a specific context to a function
+*/
+test("Listing 5.7:Bingding a specific context to a function", function(){
+
+var button = {
+	clicked : false,
+	click: function(){
+		assert(this == elem, "This is the elem, not the object button")
+		this.clicked = true;
+		assert(button.clicked, "The button has been clicked");
+	}
+}
+
+var elem = document.getElementById("test 5.7");
+elem.addEventListener("click", button.click, false);
+
+})
+/*
+运行上面这个例子之后，我们会发现，结果并不是我们预期的。
+原因是click方法并没有向我们预期的那样绑定在了button对象上。
+根据我们之前学习的第三章的知识，如果我们这么调用：
+button.click()
+那么函数的的上下文就会是button对象了。
+但是在这个例子中，函数的上下文则是dom中的<button>元素，不是js中的button对象。
+
+如何解决这个问题呢？
+答案还是利用闭包！
+我们来改进一下上面的例子，请看例子5.8
+
+Listing 5.8: Bingding a specific context to an event handler
+*/
+test("Listing 5.8: Bingding a specific context to an event handler", function(){
+
+function bind(context, name){
+	return function(){
+		return context[name].apply(context, arguments);
+	};
+}
+
+var button = {
+	clicked : false,
+	click: function(){
+		assert(this == button, "This is the object button")
+		this.clicked = true;
+		assert(button.clicked, "The button has been clicked");
+	}
+}
+
+var elem = document.getElementById("test 5.8");
+elem.addEventListener("click", bind(button,"click"), false);
+
+})
+/*
+bind()函数被广泛的应用在了JavaScript的原型库中(Prototype JavaScript Library)，
+这样就可以优雅的写出典型的面向对象的代码(Object-oriented)
+即便如此，在需要编写事件机制的代码时候，还是很容易出现函数上下文错误的问题。
+让我们来看看面向对象的代码风格如何实现bind的，请看例子:5.9.
+
+Listing 5.9: An example of the function binding code used in the Protoype library
+*/
+test("Listing 5.9: An example of the function binding code used in the Protoype library",
+	function(){
+
+Function.prototype.bind = function(){
+	var fn = this, 
+	args = Array.prototype.slice.call(arguments),
+	object = args.shift();
+
+	return function(){
+		return fn.apply(object,
+			args.concat(Array.prototype.slice.call(arguments)))
+	};
+};
+
+var myObject = {};
+function myFunction(){
+	return this == myObject;
+}
+
+assert( !myFunction(), "Context is not set yet");
+
+var myFunction = myFunction.bind(myObject);
+assert(myFunction(), "Context is set properly");
+
+
+})
+/*
+注意，这里.bind()的目的并不是要取代.apply()或者.call()。
+这个例子想要说明的是，我们可以通过闭包和匿名函数(anonymous function)来操控上下文(context),
+进而实现，当延迟调用此函数的时候，上下文也不会更改。
+这种情形在回调(callbacks)和事件机制(event handlers and timers)中会很有帮助。
+
+
+
+
+
+
+
+5.4 滚雪球式的函数(Partially applying functions)
+同学们，注意啦，精彩的章节来了！！！想知道如何利用闭包聚集力量，发出致命一击吗？
+忍着师傅要传授绝密武功了，请仔细的阅读本章节。
+
+在学习此章节前，我们先来思考几个题外话。
+你们有没有感觉到，想要做好任何一类事情，都可以找到这个事情的一个巧劲。
+例如，打羽毛球，不应该用蛮力击球，而是应该找到，放松的通过一段位移，挥舞牌子产生惯性的力来击球。说白了就是一种放松情况下产生的力道。
+例如，李小龙悟到的打拳的发力，不应该用蛮力，而是让肌肉放松，将手臂想象成鞭子，将拳头刷出去打人。
+例如，弹钢琴，不应该用蛮力，应该用手指产生的惯性力来敲打键盘，有一句话，钢琴是弹的不应该是按的。这里关于钢琴的正确发力的学问，叫做触键。
+例如，制造一个大雪球，如果用蛮力来做，这是在地上堆砌雪球，而正确的做法是先在山顶制造一个小雪球，然后通过向下滚动，逐渐让雪球逐渐变大，最后成长为一个大雪球。
+总结看来，这些巧劲的共性，就是利用距离和时间转化为力量（类似与势能转换为动能）。而不是蛮力本身的传递。
+这样的例子太多了，我们做任何事情，都应该意识到，核心的问题是如何找到那种巧劲，编程也是如此。
+
+那么JavaScript的巧劲是什么呢，请看下文分解？
+
+
+“滚雪球式”("Partially applying")是一个非常有趣的技术，利用这个技术，我们可以预先将参数安装到函数中，而不用立即执行此函数。等到我们想执行此函数的时候，我们可以在任意时刻触发。
+这里就是将时间(提前按照参数)和距离(中间增加函数)看作势能，而实际调用此函数的那一瞬间则是是将势能转换为动能。
+
+
+我们来看看本书作者如何定义的。
+本书作者引用了传统的一个词汇，“currying”
+定义如下：
+首先将一批函数转入一个函数(然后这个函数返回一个新的函数)，这中形式就叫“做科里化”（currying）
+
+我想到新果曾经在解释currying的时候写的一个例子，如下：
+用currying化实现2个数相加。
+
+*/
+test("Listing 5.10.1 xinguo's demo",function(){
+var add = function(a)
+{
+	return function(b){
+	
+		return a + b;
+	}
+}
+
+assert(add(1)(2) == 3, "Curring: add two integer");
+
+})
+
+/*
+
+
+下面我们来看本书中的如何通过例子来表达currying：
+例如我们现在有个需求，需求是我们想将一个字符串转换为CSV格式的一个字符串数组。
+如果是菜鸟，我们一般这样写：
+*/
+var elements = "val1, val2, val3".split(/, \s*/);
+/*
+有没有觉得上面这种写法很笨拙，每次想将一个字符串转换为CSV格式的时候，还必须得记住这个特定得正则表达式。
+同学们，我们得目标是成为牛逼闪闪得JavaScript忍着，我们要用国际范得方式来搞定这个需求。
+so 让我们创建一个csv()方法来做这个事吧。
+让我们想象一下，如果用currying化来编写这个csv()呢？
+请看例子5.10
+
+Listing 5.10:Partially applying arguments to a native function
+*/
+test("Listing 5.10:Partially applying arguments to a native function", function(){
+
+Function.prototype.curry = function(){
+	var fn = this, 
+	// 这里就是在预装参数，将参数抓住，缓存在变量args中
+	args = Array.prototype.slice.call(arguments);
+	return function(){
+		return fn.apply(this, args.concat(
+			Array.prototype.slice.call(arguments)))
+	}
+}
+
+String.prototype.csv = String.prototype.split.curry(/,\s*/);
+var results = ("Mugan, Jin, Fuu").csv();
+
+assert(results[0] == "Mugan" &&
+		results[1] == "Jin" &&
+		results[2] == "Fuu",
+		"The text values were split properly");
+
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	</script>
+
+</html>
