@@ -1,0 +1,61 @@
+第二章 测试和debug(Testing and debugging)
+
+本章重点：
+1.测试工具
+2.测试技术
+3.构建一个测试框架
+4.如何测试异步代码
+
+由于我们在之后的示例中用到的测试工具很少，几乎就是在用assert函数，所以本章不做详细的翻译了。
+首先将assert函数给出，之后的章节用的的assert函数都是在调用此段代码,用的时候请引用下面的assert.js:
+
+(function()
+{
+	document.write("<style>#results li.pass { color: green;}#results li.fail { color: red;}</style>");
+	document.write("<ul id='results'></ul>");
+	
+	var results;
+	this.assert = function assert(value, desc)
+	{
+		results = results || document.getElementById("results");
+		var li = document.createElement('li');
+		li.className = value ? "pass" : "fail";
+		li.appendChild(document.createTextNode(desc));
+		results.appendChild(li);
+		if (!value)
+		{
+			li.parentNode.parentNode.className = "fail";
+		}
+		return li;
+	};
+
+
+	this.test = function test(name, fn)
+	{
+		results = document.getElementById("results");
+		results = assert(true, name).appendChild(document.createElement("ul"));
+		fn();
+	}
+
+
+})()
+
+2.1 debugging code
+一般菜鸟在debug的时候都是用alert()，现在我们看看在不同的浏览器中自带的高级点的工具：
+.Firebug:请看http://getfirebug.org
+.IE Developer Tools: 在IE8和9和10中可用
+.Opera Dragonfly: Opera 9.5或更新可用
+.WebKit Developer Tools: Safari 3 ,4, Chrome(推荐这个，我就是用这个)
+
+2.1.1 Logging
+一般用console.log()
+
+2.1.2 断点(Breakpoints)
+
+
+2.3 测试框架
+2.3.1 QUnit(http://docs.jquery.com/Qunit)
+2.3.2 YUITest(http://developer.yahoo.com/yui/3/test/)
+2.3.3 JSUnit(http://www.jsunit.net)
+
+
