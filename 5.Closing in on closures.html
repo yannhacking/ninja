@@ -16,7 +16,8 @@
 
 这章写得极为精彩，让我明白了好多以前根本不知道的概念。
 闭包是一个神奇的东西，新果说过，闭包就是可以当作鞭子来用，可以打出鞭子头一样的力道。
-所谓的函数化这个概念，想要理解函数化编程，闭包是一个很重要的部分。
+所谓的函数化这个概念中，闭包是一个很重要并且很精髓的概念。
+想要理解函数化编程，就要深刻的理解闭包。
 
 本章重点：
 1.闭包的定义，闭包是什么，闭包如何工作
@@ -43,7 +44,7 @@ test("Listing 5.1: A simple closuer", function()
 	outerFunction();
 })
 /*
-你可能写过n多次这样的代码，可你竟然没有意识到你在创建closure！
+你可能写过n多次这样的代码，可你竟然没有意识到你在创建闭包(closure)！
 你不相信？估计是因为你没有感觉到有任何的惊喜。
 因为out value和outer function的作用域是全局域(global scope)，而全局域是永远不会消失(自从这个页面被加载就存在了)，
 另外就算是这个function可以访问outer value，这个特点也没有实用的价值。
@@ -76,7 +77,8 @@ test("Listing 5.2: A not-so-simple closue",function()
 首先，我们定义了later这个变量，我们会在后面用到它。
 然后，我们在outer function中定义了inside这个变量，这样inside就被限制在outerFunction域内了。
 然后，我们在outerFunction中定义了一个innerFunction，innerFunction可以访问我们已经定义过的所有外部变量。
-是的！我们可以这样做！记住上一章我们讨论过的吗？function是自然类型的对象(first－class objects)，它和变量一样在任何地方都可以被创建。
+是的！我们可以这样做！记住上一章我们讨论过的吗？
+function是自然类型的对象(first－class objects)，它和变量一样在任何地方都可以被创建。
 我们当然也可以将inner function赋给later变量，以便稍后调用。
 
 一切就绪，我们开始运行。
@@ -371,7 +373,7 @@ assert(myFunction(), "Context is set properly");
 在学习此章节前，我们先来思考几个题外话。
 你们有没有感觉到，想要做好任何一类事情，都可以找到这个事情的一个巧劲。
 例如，打羽毛球，不应该用蛮力击球，而是应该找到，放松的通过一段位移，挥舞牌子产生惯性的力来击球。说白了就是一种放松情况下产生的力道。
-例如，李小龙悟到的打拳的发力，不应该用蛮力，而是让肌肉放松，将手臂想象成鞭子，将拳头刷出去打人。
+例如，李小龙悟到的打拳的发力，不应该用蛮力，而是让肌肉放松，将手臂想象成鞭子，将拳头甩出去打人。
 例如，弹钢琴，不应该用蛮力，应该用手指产生的惯性力来敲打键盘，有一句话，钢琴是弹的不应该是按的。这里关于钢琴的正确发力的学问，叫做触键。
 例如，制造一个大雪球，如果用蛮力来做，这是在地上堆砌雪球，而正确的做法是先在山顶制造一个小雪球，然后通过向下滚动，逐渐让雪球逐渐变大，最后成长为一个大雪球。
 总结看来，这些巧劲的共性，就是利用距离和时间转化为力量（类似与势能转换为动能）。而不是蛮力本身的传递。
@@ -380,8 +382,11 @@ assert(myFunction(), "Context is set properly");
 那么JavaScript的巧劲是什么呢，请看下文分解？
 
 
-“滚雪球式”("Partially applying")是一个非常有趣的技术，利用这个技术，我们可以预先将参数安装到函数中，而不用立即执行此函数。等到我们想执行此函数的时候，我们可以在任意时刻触发。
-这里就是将时间(提前按照参数)和距离(中间增加函数)看作势能，而实际调用此函数的那一瞬间则是是将势能转换为动能。
+“滚雪球式”("Partially applying")是一个非常有趣的技术，
+利用这个技术，我们可以预先将参数安装到函数中，而不用立即执行此函数。
+等到我们想执行此函数的时候，我们可以在任意时刻触发。
+这里就是将时间(提前按照参数)和距离(中间增加函数)看作势能，
+而实际调用此函数的那一瞬间则是是将势能转换为动能。
 
 
 我们来看看本书作者如何定义的。
@@ -416,7 +421,7 @@ assert(add(1)(2) == 3, "Curring: add two integer");
 var elements = "val1, val2, val3".split(/, \s*/);
 /*
 有没有觉得上面这种写法很笨拙，每次想将一个字符串转换为CSV格式的时候，还必须得记住这个特定得正则表达式。
-同学们，我们得目标是成为牛逼闪闪得JavaScript忍着，我们要用国际范得方式来搞定这个需求。
+同学们，我们得目标是成为牛逼闪闪得JavaScript Ninja，我们要用国际范的方式来搞定这个问题。
 so 让我们创建一个csv()方法来做这个事吧。
 让我们想象一下，如果用currying化来编写这个csv()呢？
 请看例子5.10
@@ -444,13 +449,467 @@ assert(results[0] == "Mugan" &&
 		"The text values were split properly");
 
 })
+/*
+上面这个例子看懂了吗？
+curry这个函数做的事情，是将函数中的this和arguments缓存在了闭包之中。
+当split函数调用curry的时候，curry中的this就是split函数本身，
+正则表达式这个参数则是预存在curyry中的arguments。
+
+虽然这段代码实现已经很不错了，但是我们还可以进行一些改进。
+上面这个curry函数，实现了将所有参数缓存在闭包之中。
+当调用闭包返回的新的函数的时候才去处理之前预装的所有参数。
+
+但是如果我不想让所有的参数全部预装，而是只预装其中一部分，
+另外一部分参数要在调用闭包返回的那个新的函数中，将这部分参数传入。
+
+这类问题，已经在其他语言中实现了，Oliver Steele就是其中的一个作者。
+他开发的类库叫Functional.js(http://osteele.com/sources/javascript/functional/)
+
+让我们看看我们自己的实现，例子：5.12
+
+Listing 5.12: A more-complex "partial" function
+*/
+test("Listing 5.12: A more-complex 'partial' function",function(){
+
+Function.prototype.partial = function(){
+	var fn = this, args = Array.prototype.slice.call(arguments);
+	return function(){
+		var arg = 0;
+		for (var i = 0; i < args.length && arg < arguments.length; i++){
+			if (args[i] === undefined){
+				args[i] = arguments[arg++];
+			}
+
+		}
+		return fn.apply(this, args);
+	}
+}
+
+var delay = setTimeout.partial(undefined, 10);
+delay(function(){
+	assert(true,"A call to this function will be delayed 10 ms");
+})
+
+
+var bindClick = document.body.addEventListener.partial("click", undefined, false);
+
+bindClick(function(){
+	assert(true, "Click event bound via curried function.");
+})
+
+})
+/*
+partial()的实现和curry()有些相像。
+在第一批的参数中，我们用undefined代表了那部分缺省参数。
+在后面delay调用的时候，才将真正想要被处理的参数传递进去。
+
+
+5.5 函数的重写(Overriding function behavior)
+
+JavaScript是一个很有趣的语言，在JavaScript中，
+你可以在用户毫无感知的情况下，完全的控制一个函数的内部行为。
+具体来说有两种方法可以做到这件事：
+1.更改已经存在的函数（不需要通过闭包）
+2.基于已经存在的函数，来创建一个新的函数，在这个新的函数中加入自身更改的逻辑
+
+记得第四章的一个例子吗？函数结果的记忆能力(memoization)
+让我们来看看另一种实现的版本
+
+
+5.5.1 函数的记忆能力(Memoization)
+所谓memoization，即让一个函数具备一种可以记忆它历史被调用时候产生的运算结果的能力。
+在第四章中，我们实现memoization的方法是采用了直接去更改一个已经存在的函数。
+这样做真是太粗暴了。
+我们需要优化这个实现。
+
+让我们创建一个叫做memoized()的方法，在例子5.13中，
+我们实现了用memoized()来记住一个已经存在的函数的返回值。
+在这个例子中我们并没有用到闭包
+
+Listing: A memorization method for functions.
+*/
+test("Listing: A memorization method for functions.",function(){
+
+Function.prototype.memoized = function(key){
+	this._values = this._values || {};
+	return this._values[key] !== undefined ? 
+		this._values[key] : 
+		this._values[key] = this.apply(this, arguments);
+}	
+
+
+function isPrime( num ){
+	var prime = num != 1;
+	for ( var i = 2; i < num; i++)
+	{
+		if (num % i == 0){
+			prime = false;
+			break;
+		}
+	}
+	return prime;
+}
+assert(isPrime.memoized(5), "The function works; 5 is prime.");
+assert(isPrime._values[5], "The answer has been cached.");
+})
+/*
+在上面这个例子中，结果都被缓存在了_values中。
+有趣的一点是，计算和存储是在一个single step中。
+结果是通过.apply()来调用父函数来完成，然后直接将结果存储在了父函数的属性_values中。
+所以整个事件链是这样：
+计算出结果，保存结果，返回结果。所有这些都是在一个逻辑代码块中完成(a single logical unit of code)
+这样做的缺点在于：调用isPrime()的时候还必须记得要调用.memoized()方法，来实现memoization。
+
+如果解决这个缺点呢？
+用闭包！
+
+
+Listing 5.14: A technique for memorizing functions using closures
+*/
+test("Listing 5.14: A technique for memorizing functions using closures", function(){
+
+Function.prototype.memoized = function(key){
+	this._values = this._values || {};
+	xyz = this._values;
+	return this._values[key] !== undefined ?
+		this._values[key] :
+		this._values[key] = this.apply(this, arguments);
+}
+
+// 这里得memoize就是利用闭包的特性，来隐性的更改了ipPrime的行为
+Function.prototype.memoize = function(){
+	var fn = this;								//#1
+	return function(){							//#2
+		return fn.memoized.apply(fn, arguments);
+	}
+}
+
+var isPrime = (function ( num ){
+	var prime = num != 1;
+	for ( var i = 2; i < num; i++)
+	{
+		if (num % i == 0){
+			prime = false;
+			break;
+		}
+	}
+	return prime;
+}).memoize();
 
 
 
+})
+
+/*
+在5.13这个例子的基础上，我们通过一点改进，完美的解决了之前的那个缺陷。
+在本例中，我们创建了一个新的方法，memoize()。
+在memozie()中，利用memoized()重新包裹了原始函数(original function)。
+这样一来，memoize返回的函数就永远会是具备了momoized能力的函数(#2)
+
+请注意，在momozie()这个方法中，我们构建了一个闭包，
+在这个闭包中通过fn这个变量拷贝了原始函数：isPrime函数(通过获取其上下文 ＃1)，
+这是一个很通用的技巧：每个函数都拥有自己的上下文，所以上下文从来都不是闭包的一部分。
+但是我们可以利用一个变量来关联原始函数的上下文的值，
+这样就等同于函数上下文(isPrime context)成为了闭包的一部分。
+由于原始函数已经成为了闭包的一部分，那么闭包自然可以在返回的新函数中，
+随意的操作原始函数(isPrime)，让其具备记忆能力.
+
+在例5.14中我们还使用了一个特别技巧：立即执行一个函数（immediately)
+在后面5.5.3这个章节中，我们会详细的讨论这个技巧。
 
 
+例5.14是一个很好的展现了闭包的威力的例子，但是我们也要知道，这种技巧同样也会有缺陷。
+如果过多的利用闭包来隐性的修改一个函数的逻辑。那么将会让这个函数成为一个很难被继承的函数。
+过于极端的使用这个技巧也是不可取的。
+不过无所谓，因为后面我们将会学习一种技巧来搞定这个缺陷，
+那就是将这部分逻辑封装在一个可以延迟调用的函数中。
 
 
+5.5.2 函数包装(Function wrapping)
+函数包装是一个的用来封装函数功能的技巧。
+如果想要继承或者创建一个新的函数的时候，通过函数包装可直接实现。
+最有价值的一个场景是：在我们想要重写(override)一些已经存在的函数的情况下，
+并且可以保持在原始函数中那些有用的部分可以在被包装后仍然有效。
+
+另外一个普遍的场景是：兼容不同的浏览器。
+例如在Opera浏览器中，有一个获取title属性的bug。
+Prototype类库采用了函数包装这个技术来对付这个bug。
+
+为了防止在readAttribute()函数中，过多的出现if/else这样的代码快(这是一个比较丑陋，并且不是一个特别好的分割逻辑的方式)。
+Prototype选择利用函数包装(function wrapping)来重写(override)那个老的方法，
+但是原始函数中的那些正常的逻辑还应该有效
+
+(这一段比较难翻译，之前读的时候，并没有完全理解作者真正想要表达的那些有价值的细节)
+
+让我看例5.15
+
+Listing 5.15: Wrapping an old function with a new piece of functionality
+*/
+
+test("Listing 5.15: Wrapping an old function with a new piece of functionality", function(){
+
+function wrap(object, method, wrapper){
+	var fn = object[method];				//#1
+	return object[method] = function(){		//#2
+		return wrapper.apply(this, [fn.bind(this)].concat(
+			Array.prototype.slice.call(arguments)));
+	}
+}
+
+// Example adapted from Prototype
+if (Prototype.Browser.Opera){				//#3
+	wrap(Element.Methods, "readAttribute",
+		function(original, elem, attr){
+			return attr == 'title' ? elem.title : original(elem, attr); 
+		})
+}
+
+//#1 缓存原始函数
+//#2 返回新的包装函数
+//#3 实现函数包装
+
+
+})
+/*
+我们来分析一下wrap()函数是如何工作的。
+在传入wrapp()的参数中包括：
+1.一个基础的对象(object)
+2.这个基础对象想要被包装的方法(method)
+3.新的包装函数(wrapper)
+
+首先，我们将原始方法保存在变量fn中(#1)；
+我们在后面会通过匿名函数的闭包(anonymous function's closure)来调用它。
+然后我们用一个新的函数来重写这个方法(#2)
+这个新的函数执行了之前传进来的wrapper函数(通过一个闭包)，并且传给它一个重新构造的参数列表.
+在构建这个参数列表时，我们想让第一个参数是我们正在重写的原始函数(original function)，
+这样一来，我们创建一个数组来连接原始函数(原始函数的上下文已经被绑定，通过bind()函数，我们之前在例5.3中创建的，同样适用于包装函数)，然后将原始参数追加到这个数组中。
+在apply()函数中，如我们所见，用这个数组作为了他的参数列表。
+
+Prototype类库利用wrap()函数，实现了对一个已经存在的函数的重写(在这个例子中是重写了readAttribute函数)
+将这个函数替换成了一个包装后的新函数(#3).
+然而，这个新的函数仍然可以拥有原始函数的原始功能(通过原始参数)。
+这就意味着，一个函数被重写之后，仍然可以保留原始的功能，这是一个很安全的技术。
+
+结论就是，wrap()函数是一个可以重用的函数，我们可以用一种比较隐蔽的方式，
+来重写任何对象的方法中的已有的功能。
+这又是一个彰显闭包威力的案例。
+
+现在，让我来看一个经常会被用到，也很古怪的一个表达式。
+它同样也是函数式编程的一个重要部分。
+
+5.6 即时函数(Immediate functions)
+让我们来看一个简单的代码结构，这是一个函数化编程中很重要的部分，
+同样也是闭包中我们还未展示的一个亮点。
+代码如下：
+(function(){})()
+
+这中模式的代码，毫无疑问的可以用在很多地方，
+它给JavaScript带来了很多出乎意料的能力。
+这段代码中的花括号和原括号看起来比较陌生，
+让我们来一点一点的分析一下：
+
+首先，让我们忽略第一个原括号里的内容，让代码变成这样：
+(...)()
+我们知道，我们可以通过函数名加原括号(functionName())这样的代码表达式，来调用任意的一个函数
+但是我们可以用任意的一个关联函数实例的表达式，来替换函数名(function name).
+这正是为什么我们可以调用一个指向函数的变量(variableName())。
+
+所以在(...)()这个代码中，第一组圆括号只是用来划定逻辑范围，第二组圆括号则是操作符。
+不同位置的圆括号表示的意义不同，这里可能会有一点小混乱。
+如果函数的调用的操作符换成另一个样子，用～～代替()，代码变成这样(...)~~这样会不会清晰一些。
+
+最后，第一组括号里要是一个函数或者引用函数的变量。所以代码还是会变成这样：
+(functionName)()
+虽然如果没有第一组括号，这个代码仍然有效。
+
+现在，如果我们用一个匿名函数来代替第一组括号里的内容，代码是这呀：
+(function(){})();
+如果函数体的内部加上一些逻辑语句，代码变成这样：
+
+(function(){
+	statement-1;
+	statement-2;
+	...
+	stateent-3;
+})
+
+注意，在我们处理一个函数的时候，我们会的得到一个闭包，
+我们可以在这个函数中访问外部变量。
+总的来说，这个简单的代码结构，叫做即时函数，
+稍后我们会看到它的价值。
+
+让我们来看看即时函数(immediate function)和域(scope)的协作。
+
+
+5.6.1 临时域和私有变量(Temporary scope and private variables)
+利用即时函数，我们可以开始构建一个有趣的封闭空间来做些事情。
+正是因为即时函数是直接执行的，所以在这个函数域中的变量是受保护的，
+我们可以利用这个来创建一个临时域，来维护数据状态。
+
+注：变量在JavaScript中的作用域是依赖于定义这个变量的函数。
+利用创建一个临时函数，我们可以用它来来装载我们的变量。
+来看这段小代码：
+
+(function(){
+	var numClicks = 0;
+	document.addEventListener("click", function(){
+		alert( ++numClicks );
+	}, false);
+})()
+就像及时函数的名字一样，这个函数会立即执行，click handler会立即被绑定。
+一个闭包被创建出来，允许numClicks变量来存储数据。
+这是即时函数非常通用的一个方式，就像一个简单的功能包。
+
+如论怎样，我们要记得他们依旧是函数，他们可以被用的更加有趣，例如：
+
+document.addEventListener("click",(function(){
+	var numClicks = 0;
+	return function(){
+		alert( ++numClicks);
+	};
+})(),false)
+
+这个例子相比其之前那个例子，会让人有点迷惑。
+在这个例子中，我们同样创建了一个即时函数，
+但是这一次我们加了一个返回值：一个类似事件处理者的函数(event handler)。
+正象其他表达式一样，这个返回值传递给了addEventListener函数。
+这个内部函数理所当然的可以访问numClicks变量，利用闭包的特性。
+
+这个技巧是用一个很特别的视角来观察作用域。
+在大多数的变成语言中，一个作用域是依赖它所在的代码快的。
+但是在JavaScript中变量的作用域是依赖它所在的闭包
+(In JavaScript, variables are scoped based upon the closure that they are in.)
+
+此外，利用这个简单的结构，我们可以将作用域延伸到当前代码块和上一级代码块。
+通过调用一个函数，让一些代码的作用域可以和传入这个函数的参数相连接。
+这种能力无疑是很有用的，并且彰显了JavaScript的灵活性。
+
+List 5.16: Using an immediate function as a variables shortcut
+(function(v){
+	Object.extend(v,
+	{
+		href: 	v._getAttr,
+		src:  	v._getAttr,
+		type: 	v._getAttr,
+		action: v._getAttrNode,
+		disabled: 	v._flag,
+		checked: 	v._flag,
+		readonly: 	v._flag,
+		multiple: 	v._flag,
+		onload: 	v._getEv,
+		onunload: 	v._getEv,
+		onclick: 	v._getEv
+	});
+})(Element._attributeTranslations.read.values);
+
+在这个例子中，Prorotype继承了一个对象的属性和方法。
+在这个代码中，一个临时的变量被创建出来，目的是操作Element._attributeTranslations.read.values,
+这个变量通过第一个参数，传入了这个即时执行的匿名函数。
+这就意味着，第一个参数现在已经连接了当前的数据结构和作用域。
+这个技巧用在循环(looping)上更有用，我们会在下面讨论。
+
+5.6.2 循环(Loops)
+即时函数的另一个有用的地方是，它利用循环和闭包可以解决一些丑陋的问题。
+例5.17就是一个拥有普遍问题的代码
+
+Listing 5.17: A problematic piece of code in which the iterator is not maintained in the closure.
+<div>DIV 0</div>
+<div>DIV 1</div>
+var div = document.getElementsByTagName("div");
+for (var i = 0; i < div.length; i++){
+	div[i].addEventListener("click", function(){
+		alert("div #" + i + " was clicked.");
+	}, false);
+}
+
+我们的目的想看到点击每个<div>的时候，会显示它的原始的值。
+但是当我们点击“DIV 0”的时候，我们竟然看到它显示的是 “div #2 was clicked."
+哪里出错了呢？为什么DIV 0显示的是2
+
+在上个例子中，我们遇到了一个适用闭包和循环时候常见的问题，
+也就是说，在函数被绑定后，闭包抓住的变量(在这个例子对应的是i)已经被更改
+这就意味着，每个被绑定的处理函数(function handler)都会显示i的最后的值，在这个例子中是2。
+
+这就证明了我们已经在5.2.2章节讨论过的一个问题：
+闭包记住的是对变量的引用，而不是闭包创建时刻变量的值。
+这一点区别，让很多人都走了弯路。
+
+不过不要害怕，我们可以用另一个闭包和即时函数来修正当前这个闭包的毛病，俗话说的好：以毒攻毒(fighting fire with fire, so to speak)。
+请看例5.18
+
+Listing 5.18: Using an immediate funtion to handle the iterator properly
+<div>DIV 0</div>
+<div>DIV 1</div>
+var div = document.getElementsByTagName("div");
+for (var i = 0; i < div.length; i++){
+	(function(i){
+		div[i].addEventListener("click", function(){
+		alert("div #" + i + " was clicked.");
+		}, false);
+	})(i)	
+}
+通过在for循环内加入即时函数，我们将正确的值传递给了及时函数的，进而让工作者(handler)得到了正确的值。
+
+这个例子很清楚的展示了，如何利用即时函数和闭包来控制作用域里的变量和值。
+
+5.6.3 类库包装(Library wrappping)
+另一个闭包和即时函数很重要的用途，就是用于JavaScript类库的开发。
+当我们开发一个类库时，很重要的一点是，我们不希望变量去污染全局命名空间，尤其是一些临时变量
+
+为了解决这个问题，闭包和即时函数十分有用，它可以帮助我们让类库尽可能的私密，并且可以有选择的让将一些变量链接到全局命名空间。
+jQuery就专注于这个原则，完全的封装它的功能，只是有选择的将一些变量关联到全局空间。
+例如jQuery自身这个变量，如下面：
+(function(){
+	var jQuery = window.jQuery = functon(){
+		// Initialize
+	}
+	// ...
+})()
+
+注意：这里有两次赋值，
+首先jQuery构造器(作为一个匿名函数)赋值给了window.jQuery，这样就将其暴露到了全局空间。
+尽管如此，并不能保证我们内部域中没有别的变量叫做jQuery，所以我们将它赋予了一个本地变量jQuery。
+在我们自己的创建的世界中，jQuery这个本地变量的含义是确定的。
+
+由于类库将变量和函数封装的十分优雅，也就让最终使用类库的用户拥有了很好的灵活性。
+当然，我还可以用另外一种形势的代码，同样实现这个效果，如下所示：
+var jQuery = (function(){
+	function jQuery(){
+		// Initialize
+	}
+	//...
+	return jQuery;
+})();
+
+这段代码和之前的那个例子实现了同样的效果，只是代码组织形势不同而已。
+我们在匿名函数中定义了一个jQuery函数，它可以自由的被用在这个域中，
+然后我们将它return，这样可以将它赋值给同样叫做jQuery的全局变量。
+通常情况下，是否使用这个技巧，取决于你是否想暴露唯一的一个变量到外部。
+这个技巧看起来会清晰一些。
+
+总值，这么多种不同的形势，到底选择哪个，完全取决于开发者的意愿。
+
+
+5.7 总结(Summary)
+在这个章节中，我们讨论了闭包，在函数化编程(functional programming)中，闭包是十分关键的一个概念。
+JavaScript这们语言设计的是按照函数化编程(functional programming)的思想设计的。
+理所当然，在JavaScript中我们可以用闭包。
+
+在一开始的基础部分，我们了解了闭包如何实现，并且看到了在一个应用中如何使用闭包。
+我们讨论了很多闭包的特别的用处，包括用闭包实现私有变量，实现回调和timers。
+
+接下来我们展示了很多闭包高级的用法，闭包可以帮助重构JavaScript这个语言。
+包括强制控制函数上下文，离散化函数，重写函数的行为。
+
+然后我们又深入的探讨了即时函数，正如我们所学，即时函数重新定义了如何应用这们语言。
+
+最终，对闭包的深入理解，会带来很多好处，尤其在我们开发JavaScript复杂应用的时候。
+并且利用闭包可以解决很多不可避免的公共问题。
+
+在本章的示例代码中，我们介绍了一点prototypes的概念，接下来的一章让我们来认真的研究一下prototypes。
+
+
+*/
 
 
 
