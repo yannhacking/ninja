@@ -1,0 +1,333 @@
+第三章 函数是根基(3.Functions are fundamental)
+本章重点：
+
+1.为什么能够理解函数是如此的重要
+2.为什么函数是基本类型对象(first-class objects)
+3.函数如何被浏览器调用
+4.函数的声明(Delaring functions)
+5.函数被调用的秘密
+6.函数上下文(The context within a function)
+
+你可能感到很惊讶，为什么当我们讨论JavaScript的根基时是要讨论函数而非对象。
+我们当然会关心对象(第六章会针对object)，但是前提是讨论一些对象的实质问题。
+当我们写JavaScript代码的时候，代码写成什么水平，是写成了平均水平，还是写成了JavaScript忍者水平。
+就是取决于你是否真正理解了JavaScript是一门函数式语言(很重要的一语话)
+你的水平就是取决于这个认知。
+如果你在读本书，你一定不是一个初学者，我们会认为你是拥有很丰富的面向对象的开发经验(当然我们也会在第六章详细的讨论对象的高级概念)，
+但是真正的理解函数在JavaScript中的意义，是唯一的一件我们可以挥舞的重要武器。
+由于函数如此之重要，我们接下来的会花另外两个章节来深入讨论函数在JavaScript中的意义。
+值得注意是，在JavaScript中，函数是自然类型的对象(first-class objects)。
+这就意味着：
+1.函数可以被视为普通对象，就像其他数据的类型一样。
+2.函数可以被赋值给任何变量，也可以被声明，还有可以被视为另一个函数的参数。
+
+3.1 函数的独特之处是什么？
+
+3.1.1 为什么JavaScrpit的函数式如此重要？
+
+3.1.2 sorting with a comparator
+
+3.2 声明
+
+3.2.1 函数的域
+
+3.3 调用
+
+我们都调用过JavaScript的函数，但是你是否停下来想一想，函数究竟是如何被调用的。
+在本章节中我们会解释一下几种不同的函数调用方式。
+不同的函数调用方式，会产生非常不同的影响。其中最重要的一个影响，就是this这个参数的定义。
+这点不同比你想象要大的多，我们会在接下来的章节中讨论它，这个概念也会伴随着本书余下的内容，
+深刻的理解这个概念会让我们写出忍者级别的代码来。
+这里列出了四种函数调用方式，他们之间拥有细微的不同：
+他们是：
+
+1.作为函数，在这里函数被调用，以一种很直接，易懂的方式。
+
+2.作为方法，方法是连接在对象上面的，被这个对象调用，这中形式就是面向对象编程。
+
+3.作为构造器，在构造的过程中一个新的对象被创建出来。
+
+4.经由函数的apply()或call()方法，这是一般比较复杂的概念，所以我们稍后在用到的时候再来讨论。
+
+方法，这是一般比较复杂的概念，所以我们稍后在用到的时候再来讨论。
+但是我们最后忘记了一点，函数表达式的最后都会有一个圆括号，它表示了这个函数被调用。
+任何在圆括号中传入的变量，都会被翻译成一个列表，作为函数参数来使用。
+在我们开始讨论上面那四种函数调用模式之前，我们先来详细的讨论下在函数被调用时候，参数是如何工作的。
+
+3.3.1 变量称为参数(From arguments to function parameters)
+
+调用函数时候传入多个变量，每个变量都会赋值到此函数定义的时候的参数。
+例如第一个变量会成称为第一个参数，第二个变量会成为第二个参数，以此类推。
+如果传入的变量和函数定义的变量的个数不同的时候并不会报错;
+JavaScript在处理这个问题上很优雅，处理的具体细节如下：
+·如果调用时候传入的参数数目多于函数定义的变量个数，多出来的变量不会赋值到函数定义时候的有名字的参数上。但我们仍然有方法获取到这些多出来的变量。
+·如果函数定义的参数数目多于传入的变量，多出来的变量则会是undefined。
+非常有趣的一个地方是每个函数在被调用的时候，隐性的传入两个参数：arguments和this
+隐性的意思是，这两个参数不会在函数定义的时候出现，但是他们会在函数被调用的时候悄悄的传入函数，并且作用域函数的作用域中。
+不过他们可以被直接引用，就像其他显性定义的函数参数一样。
+下面让我们来讨论一下这两个隐性的参数。
+
+1.THE ARGUMENTS PARAMETER
+
+argments参数，即函数调用的时候传入函数的变量集合。
+这个集合具有length属性，表示集合内变量的个数。
+并且集合中的变量可以根据下标索引被引用。
+argments看起来很像JavaScript中的Array，但是它并不是Array。
+尽管他们有共同的特征，例如length属性，可以通过下标索引到集合中的变量，可以通过for语句来进行遍历。
+但是你要是用其他Array中的方法来调用argments，就会报错了。
+所以argments只是"array-like"
+相比起argments，this这个参数更有意思。
+
+2.THE THIS PARAMETER
+
+当一个函数被调用的时候，我们可以看到变量赋到了显性的参数上，但同时，一个叫做this的隐性参数也会传递到函数中。
+参数this关联到一个对象，这个对象隐性的与函数的调用发生关系，我们叫做函数上下文(function context)
+函数上下文的概念来自于面向对象的语言，例如java中的this指向的是一个类的实例，在类上会定义方法。
+但是要注意，这里的方法调用只是我们之前提到的四种调用模式的其中一种。
+话说回来，JavaScript的this指向什么，和java中的模式是不同的，并不根据函数的定义，而是根据函数是如何被调用的，也就是根据函数的调用模式的不同，this的指向也不同。
+根据这个事实，我们可以换种更清晰的称呼，我们就将this叫做调用的上下文(invocation context)，当然我们没有经过官方的协商来给this换个称呼。
+我们下面将要来看看之前说的四种函数调用模式的不同之处，我们会发现其中最终要的一个不同之处就是在调用时候this指向的不同。我们会利用很长的篇幅来继续讨论这个话题。所以不要担心你现在没有理解这个问题。
+现在让我们来看看函数是如何被调用的。
+
+3.3.2 函数调用模式(Invocation as a function)
+
+“作为一个函数来调用"，从字面来看好像没啥意义，函数当然是作为函数来调用，除了函数还能有什么其他的吗？
+其实，我们说一个函数的调用模式是作为一个函数来调用，是要与其它三种调用模式做区分。
+其他的三种调用模式为：方法调用模式，构造器调用模式，apply/call调用模式。
+当一个函数的调用方式不是这三种之一的时候，我们就将这个调用模式叫做函数调用模式。
+
+这种调用模式的触发是由于函数后面加上()操作符，并且这个函数并不属于任何一个对象的一个属性(如果是属于对象的一个属性，那么这个模式就成为了方法调用模式，我们下面会讨论)。
+简单的实例如下：
+function ninja(){};
+ninja();
+
+var samurai = function(){};
+samurai();
+
+当我们用这种模式来调用函数的时候，函数的上下文(function context)是全局的上下文(global context)，
+即window对象。
+
+我们先不用代码来说明这个问题，在下面讨论方法调用模式的时候，我们再来写一些有比较的代码。
+
+3.3.3 方法调用模式(Invocation as a method)
+
+一个函数是一个对象的属性，当这个函数被调用时候，这个函数就视为这个对象的一个方法，例如：
+var o = {};
+o.whatever = function(){};
+o.whatever();
+
+OK,so what?这个函数就叫做“方法”(method),但是，这有啥意义吗？
+
+如果你是来着与面向对象编程的开发人员，你应该记得，方法中的this就是这个方法所属的对象。
+在这个例子中，也是这么回事。
+当这个函数作为一个对象的方法被调用的时候，这个对象就成为了这个函数的上下文(function context),
+并且通过this函数作为载体存在于函数之中。
+
+这就是最重要的意义之一。
+JavaScript允许面向对象编程的存在(构造器是另外一个，我们稍后讨论)
+
+让我们看几个例子，来对比一下函数调用模式和方法调用模式的不同：
+
+Listing 3.3 Illustrating the difference between function and method invocations
+
+function creep(){ return this; }  
+
+assert(creep() == window, "Creeping in the window");  
+
+var sneak = creep;  
+
+assert(sneak() == window, "Sneaking in the window");  
+
+var ninja1 = {  
+    skulk: creep  
+};  
+
+assert(ninja1.skulk() === ninjal, "The 1st ninja is skulking");  
+
+var ninja2 = {  
+    skulk: creep  
+};  
+
+assert(ninja2.skulk() === ninja2, "The 2nd ninja is skulking");  
+运行后，我们得出结论：
+函数式的调用模式的this为window
+方法式的调用模式为方法所属的对象。
+这里值得注意的一个地方，ninja1和ninja2的skulk属性引用的是同一个函数creep
+但是当creep执行的时候，产生的this却是各自不同的。
+所以说函数的上下文的产生，并不由函数的定义来决定，而是由函数的调用来决定。
+
+3.3.4 构造器调用模式(Invocation as a constructor)
+
+作为构造器被调用，函数的定义并没有什么不同，不同的地方在于调用的方式。
+如果想让一个函数作为构造器被调用，需要用到new关键字。
+例如，我们的creep函数
+function creep(){ return this;}
+如果我们想让creep函数作为构造器来被调用，我们需要这么写：
+new creep();
+
+但是，就算我们用构造器的模式来调用creep()，这个函数也不适合作为构造器。
+让我来讨论下构造器的特性：
+
+THE SUPER-POWERS OF CONSTRUCTORS
+
+将一个函数作为构造器来调用是一个很有用处的亮点，以下是这些亮点：
+
+1.一个新的空对象被创造出来
+
+2.这个对象被传递给这个构造器作为this参数，也就是说这个对象是这个构造器函数的上下文
+
+3.如果没有显性的return语句，这个新的对象则会被隐式的return，并成为这个构造器的值。
+
+这些正是说明了creep()函数不适合作为构造器。
+构造器的目的是为了创建一个新的对象，并且set it up，返回它，让它作为构造器的值。
+
+让我构建一个更加有意义的函数：一个可以set up the skulking ninjas
+例子3.4
+
+Listing 3.4 Using a constructor to set up common objects  
+
+function Ninja(){  
+    this.skulk = function() { return this;}  
+}  
+
+var ninja1 = new Ninja();  
+var ninja2 = new Ninja();  
+
+assert(ninja1.skulk() === ninja1, "The 1st ninja is skulking");  
+assert(ninja2.skulk() === ninja2, "The 2nd ninja is skulking");  
+
+
+在这个例子中，我们创建了一个构造函数Ninja()，当我们利用new关键字来调用它的时候，
+一个空的对象实例会被创造出来并传递道函数中作为this存在。
+这个构造器同时创建了skulk属性，并将此属性作为一个方法赋予给它创造出的新的对象实例。
+
+我们调用了两次构造函数，并产生了ninja1和ninja2两个不同的实例对象。
+
+当我们想写一个构造函数的时候，函数的写法会和普通的函数很不一样，让我们接下来详细讨论下。
+
+函数的编写：
+构造函数的目的是用来初始化一个新的对象。
+当然构造函数也可以和普通函数一样被调用或者象方法一样先赋给一个对象的属性然后调用。
+例如，我们可以这样调用Ninja()函数：
+var whatever = Ninja();
+但是结果就变成，skulk属性被赋予到了window上，并且window会被return并存储在whatever中。
+由于构造函数的代码和调用模式和其他函数不同，所以一般不会用new之外的方式来调用一个构造函数。
+如何来标示一个函数是否为构造函数呢？
+一般小写字母开头的函数名字就是普通函数例如skulk()，creep(),sneak(),doSomethinWonderful()等等，
+大写字母开头的既是构造函数，Ninja(),Samurai(),Ronin(),KungFuPanda()等等。
+
+
+3.3.5 Invocation with the apply and call methods
+到目前为止，我们看到不同的函数调用模式之间最大的差异之处在于，函数上下文的不同，即隐性的this参数。
+函数调用模式中，this为window
+方法调用模式中，this为方法所属的对象
+构造器调用模式中，this为创建的新对象
+
+但是，如果我想要让this成为任意我希望的对象，如何做到呢？
+如何能够显性操作？
+
+利用APPLY和CALL方法(USING THE APPLY AND CALL METHODS)
+
+JavaScript提供给我一种途径，我们可以用任何对象作为函数上下文，并将它显性的操作。
+这个途径就是通过每个函数自身都具备的方法：apply()和call()
+
+是的，所谓每个函数自身具备的方法，即：函数作为自然类型的对象(firs-class objects)，函数可以拥有属性，包括方法(methods)
+当我们通过apply()来调用一个函数的时候，我们需要传递两个参数给apply()：
+第一个参数：用于作为函数上下文的对象；
+第二个参数：一个参数数组
+另外call()是另一个更加简单的形式，我们只需要传递argment list来代替参数数组
+
+例3.5展示了这两个方法：
+
+List 3.5 Using the apply and call methods to supply the function context
+
+function juggle(){
+	var result = 0;
+	for (var n = 0; n < arguments.length; n++){
+		result += arguments[n];
+	}
+	this.result = result;
+}
+
+var ninja1 = {};
+var ninja2 = {};
+
+juggle.apply(ninja1, [1,2,3,4]);
+juggle.call(ninja2, 5, 6, 7, 8);
+
+assert(ninja1.result === 10, "juggled via apply");
+assert(ninja2.result === 26, "juggled via call");
+
+我们看到通过apply()或者call()，我们将ninja1或ninja2作为参数传入到了函数juggle()中，
+并且让ninja1称为了函数上下文。
+
+另外要注意的是apply和call的区别在于，后面的参数，一个是数组，另一个是argmuments list
+
+这种用法在回调函数中会更加有用
+
+函数上下文在回调函数中的应用(FORCING THE FUNCTION CONTEXT IN CALLBACKS)：
+
+Listing 3.6 Building a for-each function to demonstrate setting an arbitrary function context
+
+function forEach(list, callback){
+		for (var n = 0; n < list.length; n++){
+			callback.call(list[n], n);
+		}
+}
+
+var list = ['shuriken', 'katana', 'nunchucks'];
+
+forEach(
+	list,
+	function(index){
+		console.log(index);
+		console.log(this);
+		assert(this == list[index], "Got the expected value of "+ list[index]);
+	}
+)
+
+
+3.4 总结(Summary)
+在本章，我们学到：
+1.基于对JavaScript是一门函数式语言的理解，你可以写出更对位的代码。
+2.函数是自然类型的对象(fist class objects），就象其他对象一样，它可以：
+	1) 通过字面量创建
+	2) 赋予给一个变量
+	3) 作为参数传递
+	4) 作为另一个函数的返回值
+	5) 拥有变量和方法
+
+3.函数不同于其他对象的一个超级能力就是它可以被调用
+
+4.函数通过字面量来创建，可以没有函数名
+
+5.函数的域的定义再JavaScript中相比起其他语言有些特别：
+	1)函数内部的变量的有效域是定义它的地方到函数结束处
+	2)内部函数再包裹它的函数内是处处有效的，甚至是定义这个内部函数的前面也有效
+
+6.一个函数的参数列表和它实际的argument列表的长度可以不同
+	1)如果没有赋与的参数，那么这个参数就是undefined
+	2)超出预设长度的arguments不会绑定到任何参数上
+
+7.所有函数被调用的时候，都会隐性的传入两个arguments
+	1)arguments: 真正传入的arguments集合
+	2)this: 函数上下文的载体
+
+8.函数可以有多种调用方式，调用的方式决定了函数上下文的不同
+	1)最普通的函数调用模式：函数上下文是window
+	2)方法调用模式：函数上下文是拥有这个方法的对象
+	3)构造器调用模式：函数上下文是新生成的对象
+	4)apply() or call()：函数上下文可以是我们指定的任何对象
+
+到此为止，我们介绍了函数的工作原理，下一个章节我们会讨论函数化的知识还有如何应用它
+
+
+
+
+
+
+
+
+
+
+
